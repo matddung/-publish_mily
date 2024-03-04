@@ -1,0 +1,457 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${milyx.subject}|"></title>
+    <script th:inline="javascript">
+        const elapsedTime = (date) => {
+            const start = new Date(date);
+            const end = new Date();
+
+            const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+            if (seconds < 60) return '방금 전 작성 됨';
+
+            const minutes = seconds / 60;
+            if (minutes < 60) return `${Math.floor(minutes)}분 전 작성 됨`;
+
+            const hours = minutes / 60;
+            if (hours < 24) return `${Math.floor(hours)}시간 전 작성 됨`;
+
+            const days = hours / 24;
+            if (days < 7) return `${Math.floor(days)}일 전 작성 됨`;
+
+            return `${start.toLocaleDateString()}`;
+        };
+
+        window.onload = function() {
+            document.querySelectorAll("[id^='createDate_']").forEach(function(element) {
+                const createDateInMillis = Date.parse(element.textContent);
+                element.textContent = elapsedTime(createDateInMillis);
+            });
+        };
+    </script>
+</head>
+
+<body>
+<style>
+    :root {
+        --header-width: 30%;
+        --post-width: 30%; /* 수정: 게시글의 넓이를 조절하는 변수 추가 */
+    }
+</style>
+<body>
+<body>
+<div layout:fragment="content" class="items-center justify-center" style="display: flex;">
+    <div class="container w-full px-4 mt-20" style="width: var(--post-width); max-width: 100%;">
+        <!-- 수정: --post-width를 width에도 적용 -->
+        <!-- 나머지 코드는 그대로 유지 -->
+
+        <div class="parent-container">
+            <div class="card bg-base-100 shadow-xl" style="width: 1280px; max-width: 100%;">
+                <div class="card-body">
+                    <div class="detail grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-9">
+                        <div class="form-control col-span-full">
+                            <div class="form-control"
+                                 th:text="${milyx.firstCategory.title} + ' ・ ' + ${milyx.secondCategory.title}"></div>
+                        </div>
+
+                        <!--게시글의 제목을 표시-->
+                        <div class="form-control col-span-full">
+                            <div th:text="${milyx.subject}" style="font-weight: bold; font-size: 30px;"></div>
+                        </div>
+
+                        <!--게시글의 본문을 표시 / whitespace-pre-line 스타일은 공백과 줄바꿈 유지함-->
+                        <div class="form-control col-span-full">
+                            <div class="white-space: pre-wrap;" th:text="${milyx.body}" style="font-size: 16px;"></div>
+                        </div>
+
+                        <!--조회수와 생성날짜 표시함 / flex를 사용하여 수평 정렬하고, space=between을 사용하여 두 요소 사이에 공간을 만듬-->
+                        <!--조회수와 생성날짜를 나란히 왼쪽 정렬합니다-->
+                        <div style="display: flex; justify-content: flex-start; align-items: center; flex-direction: row;"
+                             class="form-control col-span-full">
+
+                            <!--생성 날짜를 표시-->
+                            <div class="blue-background" th:id="'createDate__' + ${milyx.id}"
+                                 th:text="${milyx.createDate}"
+                                 style="font-size: 13px; margin-right: 10px;">게시물 날짜
+                            </div>
+
+                            <!--조회수 아이콘과 조회수를 표시합니다-->
+                            <div style="display: flex; align-items: center; font-size: 13px;">
+                                <!--아이콘 대신하여 텍스트를 사용하기-->
+                                <!-- <i class="fa-regular fa-eye" style="font-size: 16px;"></i> -->
+                                <div class="blue-background" th:text="'조회수 ' + ${milyx.view}" style="font-size: 13px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 해시태그 섹션 -->
+                    <div class="hashtags" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+                        <!-- 각 해시태그 -->
+                        <span class="hashtag">#</span>
+                        <span class="hashtag">#</span>
+                        <span class="hashtag">#</span>
+                        <!-- 추가 해시태그 -->
+                    </div>
+
+                    <div style="display: flex !important;" class="justify-end">
+                        <a th:if="${isAuthor}" th:href="@{|/milyx/modify/${milyx.id}|}" class="ml-4 mr-4"
+                           th:text="수정"></a>
+                        <form th:if="${isAuthor}" th:action="@{|/milyx/delete/${milyx.id}|}" method="post"
+                              style="display: inline;">
+                            <button type="submit" class="delete ml-4 mr-4" th:data-url="@{|/milyx/delete/${milyx.id}|}">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 댓글 수 표시 -->
+                <div class="form-control" style="display: -webkit-box">
+                    <div>ㅤㅤ</div>
+                    <i class="fa-regular fa-comment" style="font-size: 16px;"></i>
+                    <div>ㅤ</div>
+                    <div th:text="${#lists.size(milyx.comments)}|"></div>
+                </div>
+
+                <!-- 구분선 -->
+                <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+
+                <!-- 답변 작성 폼 -->
+                <form th:if="${@rq.login and role == 'approve' and !milyx.hasAdoptedAnswer}" method="POST"
+                      onsubmit="submitCommentForm(this); return false;"
+                      th:action="@{|/milyxcomment/create/${milyx.id}|}">
+
+                    <div class="mt-6 form-control"
+                         style="height: 100px; /* 원하는 높이로 조절 */ width: 1100px; /* 원하는 너비로 조절 */ margin-left: 50px; /* 왼쪽 공백 설정 */">
+        <textarea class="textarea textarea-bordered h-full min-h-[100px]" maxlength="20000"
+                  name="body" placeholder="한 번 등록한 답변은 수정이 불가능합니다. 답변 등록 전 확인 부탁드립니다."
+                  style="height: 100%; /* 텍스트 영역의 높이를 100%로 설정 */">
+        </textarea>
+                    </div>
+                    <div style="margin-bottom: 30px;"></div>
+
+                    <button class="btn btn-success" style="background-color: #87CEEB; margin-left: 1030px; ">답변등록
+                    </button>
+
+                </form>
+
+                <div style="margin-bottom: 90px;"></div>
+
+
+                <div class="form-control">
+                    <!-- @@@@@@@@@@@@체택된 답변@@@@@@@@@@@@ -->
+                    <ul th:each="milyxcomment : ${milyx.comments.?[isAdopt == true]}"
+                        style="border: 1px solid green; border-radius: 10px; padding: 20px; margin-bottom: 1px; width: 1200px; height: auto;">
+                        <li>
+                            <span style="font-weight: bold; color: green;">작성자 체택 답변</span>
+                        </li>
+                        <div style="margin-bottom: 10px;"></div>
+
+                        <!-- 변호사 정보를 담은 리스트 항목 -->
+                        <li class="lawyer-info"
+                            style="border: 1px solid #D8D8D8; border-radius: 20px; display: flex; align-items: center;">
+
+                            <!-- 변호사 프로필 이미지 -->
+                            <div style="width: 75px; height: 75px; border-radius: 20px; overflow: hidden; margin-right: 30px; margin-left: 0px;">
+                                <img th:src="${milyxcomment.author.lawyerUser.profileImgFilePath}"
+                                     alt="Lawyer Profile Image"
+                                     style="object-fit: cover; width: 100%; height: 100%;">
+                            </div>
+
+                            <div style="margin-right: 30px;"></div>
+
+                            <!-- 변호사 이름 -->
+                            <span th:text="${milyxcomment.author.userName} + ' 변호사'"
+                                  style="font-weight: bold; font-size: 25px; margin-right: 50px;"></span>
+
+                            <!-- 상담예약 버튼 -->
+                            <button th:text="'상담예약'" style="margin-left: 700px; padding: 8px 12px;
+                        background-color: #87CEEB; color: #fff; border: none; border-radius: 5px; cursor: pointer;"></button>
+                        </li>
+
+                        <div style="margin-bottom: 20px;"></div>
+
+
+                        <!-- 답변 내용 -->
+                        <li>
+                            <span th:text="${milyxcomment.body}" style="white-space: pre-line;"></span>
+                        </li>
+                    </ul>
+
+                    </form>
+
+
+                    <!--------------------------------------------------------------------------------------->
+
+                    <!--공백기능-->
+                    <div style="margin-bottom: 100px;"></div>
+
+                    <div style="margin-bottom: 10px;"></div>
+                    <!--------------------------------------------------------------------------------------->
+
+                    <!-- 체택되지 않은 답변들 -->
+                    <ul th:each="milyxcomment : ${milyx.comments.?[isAdopt == false]}"
+                        style="border: 1px solid #E6E6E6; border-radius: 10px; padding: 20px; margin-bottom: 100px; width: 9 00px; height: auto;">
+
+                        <li>
+                            <span style="font-weight: bold; color: #6E6E6E; margin-left: 10px;">다른 변호사 답변</span>
+                        </li>
+
+                        <div style="margin-bottom: 10px;"></div>
+
+                        <!-- 변호사 정보를 담은 리스트 항목 -->
+                        <li class="lawyer-info"
+                            style="border: 1px solid #D8D8D8; border-radius: 20px; display: flex; align-items: center;">
+
+                            <!-- 변호사 프로필 이미지 -->
+                            <div style="width: 75px; height: 75px; border-radius: 20px; overflow: hidden; margin-right: 30px; margin-left: 0px;">
+                                <img th:src="${milyxcomment.author.lawyerUser.profileImgFilePath}"
+                                     alt="Lawyer Profile Image"
+                                     style="object-fit: cover; width: 100%; height: 100%;">
+                            </div>
+
+
+                            <!-- 변호사 이름 -->
+                            <span th:text="${milyxcomment.author.userName} + ' 변호사'"
+                                  style="font-weight: bold; font-size: 25px; margin-right: 50px;"></span>
+
+                            <!-- 상담예약 버튼 -->
+                            <button th:text="'상담예약'" style="margin-left: 600px; padding: 8px 12px;
+                        background-color: #87CEEB; color: #fff; border: none; border-radius: 5px; cursor: pointer;"></button>
+
+                            <div th:if="${user != null and user.userName == milyx.author.userName and !milyx.hasAdoptedAnswer}">
+                                <form th:action="@{|/milyxcomment/adopt/${milyxcomment.id}|}" method="post"
+                                      style="display: inline; margin-left: 70px;">
+
+                                    <button type="submit" class="adopt btn btn-primary"
+                                            th:data-url="@{|/milyxcomment/adopt/${milyxcomment.id}|}">채택
+                                    </button>
+                                </form>
+                            </div>
+
+                        </li>
+
+                        <div style="margin-bottom: 20px;"></div>
+
+                        <li>
+                            <span th:text="${milyxcomment.body}" style="white-space: pre-line;"></span>
+                        </li>
+
+                        <div th:if="${user != null and user.userName == milyxcomment.author.userName and !milyx.hasAdoptedAnswer}">
+
+                            <form th:action="@{|/milyxcomment/delete/${milyxcomment.id}|}" method="post"
+                                  style="display: inline;">
+
+                                <!--답변글의 생성된 시간-->
+                                <div class="blue-background" th:id="'createDate__' + ${milyx.id}"
+                                     th:text="${milyx.createDate}"
+                                     style="font-size: 13px; margin-right: 10px;">게시물 날짜
+                                </div>
+
+
+                                <div style="margin-bottom: 10px;"></div>
+
+
+                                <div style="text-align: right;">
+                                    <button type="submit" class="delete ml-4 mr-4"
+                                            th:data-url="@{|/milyxcomment/delete/${milyxcomment.id}|}"
+                                            style="padding: 8px 12px; background-color: #ff5252; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+                                        삭제
+                                    </button>
+                                </div>
+
+                                <div th:if="${user != null and user.userName == milyx.author.userName and !milyx.hasAdoptedAnswer}">
+                                    <form th:action="@{|/milyxcomment/adopt/${milyxcomment.id}|}" method="post"
+                                          style="display: inline;">
+
+                                        <button type="submit" class="adopt btn btn-primary"
+                                                th:data-url="@{|/milyxcomment/adopt/${milyxcomment.id}|}">채택
+                                        </button>
+                                    </form>
+                                </div>
+                        </div>
+                    </ul>
+                </div>
+
+
+                <div style="margin-bottom: 100px;"></div>
+                <div class="mt-6">
+                    <div class="text-center">
+                        <button class="btn btn-wide" onclick="location.href='/milyx';"> 목록</button>
+                        <div style="margin-bottom: 100px;"></div>
+
+                        <!------------오른쪽 배너-------------->
+                        <!-- ====필터==== -->
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>당신의 페이지 제목</title>
+                        <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.js"></script>
+                        <style>
+
+                            .box-form {
+                                width: 900px; /* 넓이 설정 */
+                                border: 1px solid #ddd; /* 테두리 추가 */
+                                border-radius: 10px; /* 둥근 테두리 */
+                                padding: 15px; /* 안쪽 여백 */
+                                margin-bottom: 20px; /* 아래 여백 */
+                                background-color: #f9f9f9; /* 배경색 추가 */
+                                margin-left: 150px; /* 왼쪽으로 500px의 공백 추가 */
+
+                            }
+
+                            .box-form img.lawyer-profile {
+                                border-radius: 50%; /* 이미지를 둥글게 만듭니다. */
+                                max-width: 100px; /* 이미지 최대 너비 설정 */
+                                max-height: 100px; /* 이미지 최대 높이 설정 */
+                                margin-bottom: 10px; /* 이미지 아래 여백 조절 */
+                                top: 50%; /* 부모의 50% 위치로 이동 */
+                                left: 50%; /* 부모의 50% 위치로 이동 */
+
+                            }
+
+                            .lawyer-name {
+                                font-size: 30px; /* 변호사 이름 폰트 크기 조절 */
+                                text-decoration: none; /* 링크에 밑줄 제거 */
+                                color: #333; /* 이름 색상 설정 */
+                                margin-top: 0px; /* 이미지 아래에 여백 조절 */
+                            }
+
+                            .lawyer-company-name {
+                                font-size: 14px; /* 회사 소속 폰트 크기 조절 */
+                                color: #777; /* 회사 소속 색상 설정 */
+                                margin-top: -150px; /* 이미지 아래에 여백 조절 */
+                            }
+                        </style>
+                        </head>
+                        <body>
+
+</body>
+
+<div style="margin-bottom: 100px;"></div>
+
+
+</form>
+</div>
+</main>
+
+
+<style>
+    .btn-wide {
+        background-color: #87CEEB;
+        color: #FFFFFF;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .lawyer-profile {
+       width: 100px;
+       height: 100px;
+       border-radius: 50%; /* 이미지를 둥글게 만들기 */
+       object-fit: cover; /* 이미지 비율 유지하며 크기 조절 */
+       display: block;
+       margin: 0 auto; /* 가운데 정렬 */
+    }
+</style>
+</div>
+<!-- onclick는 버튼 디자인 만큼 클릭의 영역이 늘어나게 해준다. 이걸 쓰기 전에는 버튼을 누르면 이동이 안됐는데 쓰고 나니 버튼을 누르면 이동한다.-->
+
+<style>
+    :root {
+        --m_width: 310px;
+    }
+    #header.active {
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    }
+    .lawyer-info {
+        border: 1px solid gray; /* 또는 원하는 회색 값으로 변경 */
+    }
+
+    @media (max-width: 360px) {
+      h1 {
+      font-size: 11px;
+      }
+
+      body {
+      font-size: 13px;
+      }
+
+      .header_wrap {
+        height: 50px;
+      }
+
+      .header_con {
+        max-width: var(--m_width);
+        height: 60px;
+      }
+
+      .header_con .header_logo {
+        width: 70px;
+        margin-top: -8px;
+        margin-left: -2px;
+      }
+    }
+</style>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
+<script>
+    let submitCommentFormDone = false;
+
+    function submitCommentForm(form) {
+        if (submitCommentFormDone) return;
+
+        form.body.value = form.body.value.trim();
+
+        if (form.body.value.length == 0) {
+            form.body.focus();
+            toastWarning('내용을 입력해주세요.');
+            return;
+        }
+        if (form.body.value.length < 30) {
+            form.body.focus();
+            toastWarning('내용을 30 글자 이상 입력해주세요.');
+            return;
+        }
+
+        form.submit();
+        submitCommentFormDone = true;
+    }
+
+    const delete_elements = document.getElementsByClassName("delete");
+    Array.from(delete_elements).forEach(function (element) {
+        element.addEventListener('click', function () {
+            event.preventDefault();
+            if (confirm("정말로 삭제하시겠습니까?")) {
+                var form = document.createElement('form');
+                form.setAttribute('method', 'post');
+                form.setAttribute('action', this.dataset.url);
+
+                document.body.appendChild(form);
+                form.submit();
+            };
+        });
+    });
+
+    const adopt_elements = document.getElementsByClassName("adopt");
+    Array.from(adopt_elements).forEach(function (element) {
+        element.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (confirm("정말로 이 답변을 채택하시겠습니까?")) {
+                var form = document.createElement('form');
+                form.setAttribute('method', 'post');
+                form.setAttribute('action', this.dataset.url);
+
+                document.body.appendChild(form);
+                form.submit();
+            };
+        });
+    });
+
+</script>

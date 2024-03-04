@@ -1,0 +1,201 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>변호사 대시보드 : MILY</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    <!--  메뉴바  -->
+    <div id="header_menu" class="text-lg w-full fixed top-20 left-0 bg-white z-50 h-12 border-b pt-4">
+        <div class="flex max-w-7xl m-auto justify-evenly">
+            <a th:href="@{/user/mypage/info}" class="hover:text-blue-400 text-gray-300">내 정보</a>
+            <a th:href="@{/user/mypage/dashboard}"
+               style="color: rgb(43, 45, 47); border-bottom: 2px solid black; padding-bottom: 3px;">대시보드</a>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="sub-text">
+            <span class="large-text">변호사 대시보드</span>
+        </div>
+        <div class="flex justify-evenly">
+            <div class="flex justify-center" style="width: 120px;">상담 내역</div>
+            <div class="flex justify-center" style="width: 120px;">답변 내역</div>
+        </div>
+        <div class="flex justify-evenly mb-12">
+            <div class="flex justify-center" style="width: 120px;">0</div>
+            <div class="flex justify-center" style="width: 120px;">0</div>
+        </div>
+
+        <div class="my-res flex mt-8">
+            <span class="regular-text ml-4 my-4">내 활동</span>
+            <div class="info-first flex">
+                <div class="ml-4 my-4">내 답변</div>
+                <div class="mr-4 my-4" th:text="${commentsCount}"></div>
+            </div>
+            <div class="info-middle flex">
+                <div class="ml-4 my-4">예약 현황</div>
+                <div class="mr-4 my-4" th:text="${reservationsCount}"></div>
+            </div>
+            <div class="info-last flex">
+                <div class="ml-4 my-4">견적서</div>
+                <div class="mr-4 my-4" th:text="${allEstimatesCount}"></div>
+            </div>
+        </div>
+
+        <div class="my-cmt flex mt-8">
+            <span class="regular-text ml-4 my-4">답변 내역</span>
+            <div class="info-first flex">
+            </div>
+            <div class="info-middle flex" th:each="comments: ${comments}">
+                <a th:href="@{/milyx/detail/{id}(id=${comments.milyX.id})}" target="_blank">
+                    <div class="ml-4 my-4" th:text="${#strings.abbreviate(comments.body, 10)}"></div>
+                </a>
+                <div class="mr-4 my-4" th:id="'createDate_' + ${comments.id}" th:text="${comments.createDate}"></div>
+            </div>
+            <div class="info-last flex"></div>
+        </div>
+
+        <div class="my-cal flex mt-8">
+            <span class="regular-text ml-4 my-4">예약 현황</span>
+            <div class="info-first flex">
+                <table class="calendar">
+                    <thead>
+                    <tr>
+                        <th th:each="dates: ${dates}" th:text="${#strings.substring(dates, 8, 10)}"
+                            class="th-text"></th>
+                    </tr>
+                    <tr>
+                        <th th:each="day: ${day}" th:text="${day}" class="th-text">
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td th:each="dates: ${dates}" class="td-text">
+                            <div th:each="reservations: ${reservations}" class="table-div">
+                                <span th:if="${#strings.substring(reservations.reservationTime, 8, 10)} == ${#strings.substring(dates, 8, 10)}"
+                                      th:text="${#temporals.format(reservations.reservationTime, 'HH:mm')}"
+                                      class="span-text"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="my-est flex mt-8">
+            <span class="regular-text ml-4 my-4" th:text="'견적서 ' + ${allEstimatesCount} + '개'"></span>
+            <div class="info-first flex"></div>
+            <div class="collapse collapse-arrow" th:each="estimate: ${allEstimates}">
+                <input type="radio" name="my-accordion-2" />
+                <div class="collapse-title" th:text="${estimate.milyUser.userName} + '님의 견적서'"></div>
+                <div class="collapse-content">
+                    <span th:text="${estimate.firstCategory.title} + ' - '"></span>
+                    <span th:text="${estimate.secondCategory.title}"></span><br>
+                    <span th:text="${estimate.body}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .main {
+            display: flex;
+            width: 640px;
+            justify-content: center;
+            flex-direction: column;
+            margin: 96px 0 96px;
+        }
+        .main > .sub-text {
+            display: flex;
+            justify-content: center;
+            margin: 48px 0;
+        }
+        .large-text {
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .regular-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .my-info, .my-res, .my-cal, .my-cmt, .my-est {
+            width: 100%;
+            flex-direction: column;
+        }
+        .my-info .info-first, .my-res .info-first, .my-cmt .info-first, .my-est .info-first {
+            width: 100%;
+            justify-content: space-between;
+            border-top: 2px solid black;
+        }
+        .my-info .info-middle, .my-res .info-middle, .my-cmt .info-middle {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .my-info .info-last, .my-res .info-last, .my-cmt .info-last {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .my-cal .info-first {
+            width: 100%;
+            justify-content: space-between;
+            border: 1px solid black;
+            border-radius: 15px;
+        }
+        .calendar {
+            width: 640px;
+            margin: 16px 0;
+        }
+        .th-text {
+            width: 91.42px;
+        }
+        .td-text {
+            text-align: center;
+            vertical-align: top;
+        }
+        .span-text {
+            display: inline-block;
+            width: 56px;
+            border: 1px solid #75BDFF;
+            padding: 2px 3px;
+            border-radius: 10px;
+            margin: 1px 0;
+        }
+
+    </style>
+</div>
+
+</body>
+</html>
+<script th:inline="javascript">
+    const elapsedTime = (date) => {
+    	const start = new Date(date);
+    	const end = new Date();
+
+    	const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+    	if (seconds < 60) return '방금 전';
+
+    	const minutes = seconds / 60;
+    	if (minutes < 60) return `${Math.floor(minutes)}분 전`;
+
+    	const hours = minutes / 60;
+    	if (hours < 24) return `${Math.floor(hours)}시간 전`;
+
+    	const days = hours / 24;
+    	if (days < 7) return `${Math.floor(days)}일 전`;
+
+    	return `${start.toLocaleDateString()}`;
+    };
+
+    window.onload = function() {
+        document.querySelectorAll("[id^='createDate_']").forEach(function(element) {
+            const createDateInMillis = Date.parse(element.textContent);
+            element.textContent = elapsedTime(createDateInMillis);
+        });
+    };
+</script>

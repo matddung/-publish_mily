@@ -1,0 +1,135 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 탈퇴 안내 : MILY</title>
+    <script>
+        $(document).ready(function() {
+            $('a.btn.btn-block.btn-primary').click(function(e) {
+                e.preventDefault(); // 기본 동작(링크 이동)을 막습니다.
+                if ($('.checkbox.checkbox-info').is(':checked')) { // 체크박스가 체크되어 있는지 확인합니다.
+                    let conf = confirm("정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
+                    if (conf) {
+                        window.location.href = $(this).attr('href'); // '확인'을 누른 경우, 링크로 이동합니다.
+                    }
+                } else {
+                    alert('동의 항목을 확인해주세요.'); // 체크박스가 체크되어 있지 않은 경우, 경고 메시지를 띄웁니다.
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <!--  메뉴바  -->
+    <div id="header_menu" class="text-lg w-full fixed top-20 left-0 bg-white z-50 h-12 border-b pt-4">
+        <div class="flex max-w-7xl m-auto justify-evenly">
+            <a th:href="@{/user/mypage/info}" class="hover:text-blue-400 text-gray-300">내 정보</a>
+            <a th:href="@{/user/mypage/edit}" class="ml-5"
+               style="color: rgb(43, 45, 47); border-bottom: 2px solid black; padding-bottom: 3px;">계정 설정</a>
+        </div>
+    </div>
+
+    <div class="main-form">
+        <span class="large-text">회원 탈퇴</span>
+        <form>
+            <div>
+                <i class="fa-solid fa-check"></i>
+                <span class="regular-text" th:text="'사용 중인 아이디 ('"></span>
+                <span class="regular-text-green" th:text="${user.userLoginId}"></span>
+                <span class="regular-text" th:text="')는 탈퇴 시 복구가 불가능합니다.'"></span><br>
+                <span class="regular-text-red ml-4" th:text="'탈퇴한 아이디는 이후 복구가 불가능'"></span>
+                <span class="regular-text" th:text="'하니 신중하게 선택하시기 바랍니다.'"></span><br>
+
+                <br><br><i class="fa-solid fa-check"></i>
+                <span class="regular-text" th:text="'탈퇴 시 회원 정보는 모두 삭제됩니다.'"></span><br>
+                <span class="regular-text ml-4" th:text="'회원 정보는 모두 삭제되며, 삭제된 데이터는 복구되지 않습니다.'"></span><br>
+
+                <br><br><i class="fa-solid fa-check"></i>
+                <span class="regular-text" th:text="'탈퇴 시 Mily 서비스에 등록된 게시물 등은 전부 삭제됩니다.'"></span><br>
+                <span class="regular-text-bold ml-4" th:text="'MilyX, 견적서, 상담 예약'"></span>
+                <span class="regular-text" th:text="'등의 서비스에 올린 질문은 탈퇴 시 자동으로 삭제됩니다.'"></span><br>
+
+                <br><br><i class="fa-solid fa-check"></i>
+                <span class="regular-text" th:text="'탈퇴 시 갖고 있는 사이버 머니 취소 및 환불이 불가능합니다.'"></span><br>
+                <span class="regular-text ml-4" th:text="'사이버 머니 관리 규약에 따라 취소 및 환불이 불가능하며, 소멸됩니다.'"></span><br>
+            </div>
+
+            <div>
+                <div class="input-confirm">
+                    <input type="checkbox" class="checkbox checkbox-info">
+                    <span class="regular-text" th:text="' 안내 사항을 모두 확인하였으며, 이에 동의합니다.'"></span><br>
+                </div>
+                <div class="btn-wrap">
+                    <a th:href="@{/user/mypage/withdraw/ok}" class="btn btn-block btn-primary">확인
+                        <!--                        <button style="height: 30px; border: 1px solid #93E6FB; border-radius: 10px; padding: 0 10px; background-color: #93E6FB;">확인</button>-->
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <style>
+        .main-form {
+            display: flex;
+            margin: 48px 0;
+            width: 640px;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .large-text {
+            display: flex;
+            font-size: 32px;
+            font-weight: 600;
+            margin: 96px 0 96px;
+            justify-content: center;
+        }
+        .regular-text {
+            font-size: 14px;
+            font-weight: 400;
+            color: black;
+        }
+        .regular-text-bold {
+            font-size: 14px;
+            font-weight: 600;
+            color: black;
+        }
+        .regular-text-red {
+            color: red;
+        }
+        .regular-text-green {
+            color: #00B869;
+        }
+        .input-confirm {
+            display: flex;
+            justify-content:center;
+            margin-top: 48px;
+        }
+        .input-confirm > .checkbox {
+            border: 2px solid #309cff;
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
+        }
+        .btn-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 24px;
+            height: 24px;
+        }
+        .btn-wrap > .btn {
+            background-color: #fff;
+            border: 2px solid #309cff;
+            border-radius: 10px;
+            color: #309cff;
+            width: 60px;
+            height: 24px;
+            padding: 5px 0;
+        }
+        .btn-wrap > .btn:hover {
+            background-color: #fff;
+            border: 2px solid #87bbfa;
+            color: #87bbfa;
+        }
+    </style>
+</div>
+</body>
+</html>

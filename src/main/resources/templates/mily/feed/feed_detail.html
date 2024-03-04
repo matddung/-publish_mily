@@ -1,0 +1,157 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>변호사 피드 : MILY</title>
+    <script th:inline="javascript">
+        const elapsedTime = (date) => {
+            const start = new Date(date);
+            const end = new Date();
+
+            const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+            if (seconds < 60) return '방금 전 작성 됨';
+
+            const minutes = seconds / 60;
+            if (minutes < 60) return `${Math.floor(minutes)}분 전 작성 됨`;
+
+            const hours = minutes / 60;
+            if (hours < 24) return `${Math.floor(hours)}시간 전 작성 됨`;
+
+            const days = hours / 24;
+            if (days < 7) return `${Math.floor(days)}일 전 작성 됨`;
+
+            return `${start.toLocaleDateString()}`;
+        };
+
+        window.onload = function() {
+            document.querySelectorAll("[id^='createDate_']").forEach(function(element) {
+                const createDateInMillis = Date.parse(element.textContent);
+                element.textContent = elapsedTime(createDateInMillis);
+            });
+        };
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content" class="items-center justify-center" style="display: flex;">
+    <div class="container w-full px-4 mt-20" style="width: var(--post-width); max-width: 100%;">
+        <!-- 수정: --post-width를 width에도 적용 -->
+        <!-- 나머지 코드는 그대로 유지 -->
+
+        <div class="parent-container">
+            <div class="card bg-base-100 shadow-xl" style="width: 1280px; max-width: 100%;">
+                <div class="card-body">
+                    <div class="detail grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-9">
+                        <div class="form-control col-span-full">
+                            <div class="form-control"
+                                 th:text="${feed.firstCategory.title} + ' ・ ' + ${feed.secondCategory.title}"></div>
+                        </div>
+
+                        <!--게시글의 제목을 표시-->
+                        <div class="form-control col-span-full">
+                            <div th:text="${feed.subject}" style="font-weight: bold; font-size: 30px;"></div>
+                        </div>
+
+                        <!--게시글의 본문을 표시 / whitespace-pre-line 스타일은 공백과 줄바꿈 유지함-->
+                        <div class="form-control col-span-full">
+                            <div class="white-space: pre-wrap;" th:text="${feed.body}" style="font-size: 16px;"></div>
+                        </div>
+
+                        <!--조회수와 생성날짜 표시함 / flex를 사용하여 수평 정렬하고, space=between을 사용하여 두 요소 사이에 공간을 만듬-->
+                        <!--조회수와 생성날짜를 나란히 왼쪽 정렬합니다-->
+                        <div style="display: flex; justify-content: flex-start; align-items: center; flex-direction: row;"
+                             class="form-control col-span-full">
+
+                            <!--생성 날짜를 표시-->
+                            <div class="blue-background" th:id="'createDate__' + ${feed.id}"
+                                 th:text="${feed.createDate}"
+                                 style="font-size: 13px; margin-right: 10px;">게시물 날짜
+                            </div>
+
+                            <!--조회수 아이콘과 조회수를 표시합니다-->
+                            <div style="display: flex; align-items: center; font-size: 13px;">
+                                <!--아이콘 대신하여 텍스트를 사용하기-->
+                                <!-- <i class="fa-regular fa-eye" style="font-size: 16px;"></i> -->
+                                <div class="blue-background" th:text="'조회수 ' + ${feed.view}" style="font-size: 13px;">
+                                    조회수
+                                    160
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div style="display: flex !important;" class="justify-end">
+                        <a th:if="${isAuthor}" th:href="@{|/feed/modify/${feed.id}|}" class="ml-4 mr-4"
+                           th:text="수정"></a>
+                        <form th:if="${isAuthor}" th:action="@{|/feed/delete/${feed.id}|}" method="post"
+                              style="display: inline;">
+                            <button type="submit" class="delete ml-4 mr-4" th:data-url="@{|/feed/delete/${feed.id}|}">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div style="margin-bottom: 100px;"></div>
+                <div class="mt-6">
+                    <div class="text-center">
+                        <button class="btn btn-wide" onclick="location.href='/feed';"> 목록</button>
+                        <div style="margin-bottom: 100px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .btn-wide {
+            background-color: #87CEEB;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .lawyer-profile {
+           width: 100px;
+           height: 100px;
+           border-radius: 50%; /* 이미지를 둥글게 만들기 */
+           object-fit: cover; /* 이미지 비율 유지하며 크기 조절 */
+           display: block;
+           margin: 0 auto; /* 가운데 정렬 */
+        }
+        #header.active {
+          box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+        }
+        .lawyer-info {
+            border: 1px solid gray; /* 또는 원하는 회색 값으로 변경 */
+        }
+
+        @media (max-width: 360px) {
+            h1 {
+            font-size: 11px;
+            }
+
+            body {
+            font-size: 13px;
+            }
+
+            .header_wrap {
+              height: 50px;
+            }
+
+            .header_con {
+              max-width: var(--m_width);
+              height: 60px;
+            }
+
+            .header_con .header_logo {
+              width: 70px;
+              margin-top: -8px;
+              margin-left: -2px;
+            }
+        }
+    </style>
+</div>
+</body>
+</html>

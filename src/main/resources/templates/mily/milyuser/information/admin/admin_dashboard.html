@@ -1,0 +1,254 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 대시보드 : MILY</title>
+    <script>
+        $(document).ready(function() {
+            $('button').click(function(e) {
+                e.preventDefault();
+                let conf = confirm("해당 변호사의 가입을 승인하시겠습니까?");
+                if (conf) {
+                    $(this).parents('form').submit();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <!--  메뉴바  -->
+    <div id="header_menu" class="text-lg w-full fixed top-20 left-0 bg-white z-50 h-12 border-b pt-4">
+        <div class="flex max-w-7xl m-auto justify-evenly">
+            <!--            <a th:href="@{/user/mypage/info}" class="hover:text-blue-400 text-gray-300">내 정보</a>-->
+            <!--            <a th:href="@{/user/mypage/dashboard}"-->
+            <!--               style="color: rgb(43, 45, 47); border-bottom: 2px solid black; padding-bottom: 3px;">대시보드</a>-->
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="sub-text">
+            <span class="large-text">관리자 대시보드</span>
+        </div>
+
+        <div class="my-cmt flex mt-8">
+            <span class="regular-text ml-4 my-4">유저 현황</span>
+            <div class="info-first flex"></div>
+            <div class="flex justify-around my-6">
+                <div class="user-info flex">
+                    <span class="regular-text">변호사</span>
+                    <span class="regular-text" th:text="${lawyersCount} + '명'"></span>
+                </div>
+                <div class="user-info flex">
+                    <span class="regular-text">회원</span>
+                    <span class="regular-text" th:text="${usersCount} + '명'"></span>
+                </div>
+            </div>
+
+            <div class="user-list flex mb-12">
+                <div th:each="users, stat: ${users}" class="flex justify-around">
+                    <div th:if="${stat.count <=4}" th:text="${users.userName}" class="user-text"></div>
+                    <div th:if="${stat.count <=4}" th:text="${users.userPhoneNumber}" class="user-text"></div>
+                    <div th:if="${stat.count <=4}" th:text="${users.role}" class="user-text"></div>
+                </div>
+            </div>
+
+            <span class="regular-text ml-4 my-4">서비스 현황</span>
+            <div class="info-first flex mb-6"></div>
+            <div class="flex justify-around">
+                <div class="service-text">Mily X</div>
+                <div class="service-text">
+                    <span th:text="'총'" class="mr-1"></span>
+                    <a th:href="@{/milyx}" th:text="${posts}" style="font-weight: 600; text-decoration: underline;"
+                       target="_blank"></a>
+                    <span th:text="'개'"></span>
+                </div>
+            </div>
+            <div class="flex justify-around">
+                <div class="service-text">견적서</div>
+                <div th:text="'총 ' + ${estimates} + '개'" class="service-text"></div>
+            </div>
+            <div class="flex justify-around mb-12">
+                <div class="service-text">상담 예약</div>
+                <div th:text="'총 ' + ${reservations} + '개'" class="service-text"></div>
+            </div>
+
+            <span class="regular-text ml-4 my-4" th:if="${waitingCount > 0}" th:text="'승인 대기 변호사 ' + ${waitingCount} + '명'"></span>
+            <span class="regular-text ml-4 my-4" th:if="${waitingCount == 0}" th:text="'승인 대기 변호사가 없습니다.'"></span>
+            <div class="info-first flex mb-4" th:unless="${waitingCount == 0}"></div>
+            <div class="lawyer-profile" th:each="waiting: ${waiting}">
+                <div class="lawyer-img">
+                    <img th:src="${waiting.lawyerUser.profileImgFilePath}">
+                </div>
+                <div class="lawyer-info">
+                    <div class="lawyer-name" th:text="${waiting.userName} + ' · ' + ${waiting.lawyerUser.area}"></div>
+                    <div class="lawyer-office" th:text="${waiting.lawyerUser.officeAddress}"></div>
+                    <div class="lawyer-license" th:text="${waiting.lawyerUser.licenseNumber}"></div>
+                </div>
+                <div class="lawyer-introduce">
+                    <div class="lawyer-intro" th:text="${waiting.lawyerUser.introduce}"></div>
+                </div>
+                <div class="confirm-approve">
+                    <form th:each="waiting: ${waiting}" th:action="@{/user/approveLawyer/{id}(id=${waiting.id})}"
+                          method="POST" class="confirm-form">
+                        <button th:text="'승인'" class="waiting-text w-12" style="color: #75BDFF;"></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .main {
+            display: flex;
+            width: 640px;
+            justify-content: center;
+            flex-direction: column;
+            margin: 96px 0 96px;
+        }
+        .main > .sub-text {
+            display: flex;
+            justify-content: center;
+            margin: 48px 0;
+        }
+        .large-text {
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .regular-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .user-info {
+            flex-direction: column;
+            width: 150px;
+            background-color: #75BDFF;
+            border-radius: 10px;
+            padding: 5px 0;
+            text-align: center;
+        }
+        .user-info > .regular-text {
+            font-size: 18px;
+            font-weight: 400;
+            color: white;
+        }
+        .waiting-list {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        .waiting-text {
+            display: flex;
+            justify-content: center;
+        }
+        .service-text, .waiting-text {
+            font-size: 18px;
+            font-weight: 400;
+        }
+        .user-list {
+            flex-direction: column;
+        }
+        .user-text {
+            display: flex;
+            font-size: 16px;
+        }
+        .service-text {
+            display: flex;
+            justify-content: center;
+            width: 80px;
+        }
+        .my-info, .my-res, .my-cal, .my-cmt, .my-est {
+            width: 100%;
+            flex-direction: column;
+        }
+        .my-info .info-first, .my-res .info-first, .my-cmt .info-first, .my-est .info-first {
+            width: 100%;
+            justify-content: space-between;
+            border-top: 2px solid black;
+        }
+        .my-info .info-middle, .my-res .info-middle, .my-cmt .info-middle {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .my-info .info-last, .my-res .info-last, .my-cmt .info-last {
+            width: 100%;
+            justify-content: space-between;
+        }
+        .my-cal .info-first {
+            width: 100%;
+            justify-content: space-between;
+            border: 1px solid black;
+            border-radius: 15px;
+        }
+        .calendar {
+            width: 640px;
+            margin: 16px 0;
+        }
+        .th-text {
+            width: 91.42px;
+        }
+        .td-text {
+            text-align: center;
+            vertical-align: top;
+        }
+        .span-text {
+            display: inline-block;
+            width: 56px;
+            border: 1px solid #75BDFF;
+            padding: 2px 3px;
+            border-radius: 10px;
+            margin: 1px 0;
+        }
+        .lawyer-profile {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .lawyer-img {
+            display: flex;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+        .lawyer-info {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: 140px;
+            margin: 0 8px;
+        }
+        .lawyer-introduce {
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center;
+            width: 320px;
+            margin-right: 8px;
+        }
+        .lawyer-intro {
+            font-size: 14px;
+            color: black;
+        }
+        .lawyer-name {
+            font-weight: 600;
+            color: black;
+        }
+        .lawyer-office, .lawyer-license {
+            font-size: 14px;
+        }
+        .confirm-approve {
+            display: flex;
+            justify-content: flex-end;
+            width: 64px;
+            margin-left: 16px;
+        }
+        .confirm-form {
+            display: flex;
+            align-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</div>
+
+</body>
+</html>

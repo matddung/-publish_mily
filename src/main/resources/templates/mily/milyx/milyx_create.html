@@ -1,0 +1,204 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>MilyX : MILY</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="flex-1 flex items-center justify-center" layout:fragment="content">
+    <div class="container w-full px-4" style="width: 865px">
+        <div style="display: flex; flex-direction: column; align-items: center;" class="mt-40 justify-center">
+            <div style="font-size: 30px; font-weight: bold;">
+                <span>상담글 작성</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <span style="font-weight: bold;"> 변호사의 답변을 포인트를 걸고 받아보세요!</span>
+            </div>
+            <div class="my-10"></div>
+            <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+        </div>
+        <form class="flex flex-col gap-6" method="POST" onsubmit="submitCreateForm(this); return false;"
+              th:action="@{/milyx/create}">
+            <div class="form-control">
+                <span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                    대분류를 선택해주세요.
+                </span>
+                <select name="firstCategory" id="firstCategory" class="my-5">
+                    <option value="0" disabled selected>전체</option>
+                    <option th:each="category : ${firstCategories}" th:text="${category.title}"
+                            th:value="${category.id}"></option>
+                </select>
+                <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+                <span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                    소분류를 선택해주세요.
+                </span>
+                <select name="secondCategory" id="secondCategory" class="my-5">
+                    <option value="0" disabled selected>대분류를 먼저 선택해주세요.</option>
+                </select>
+
+
+                <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"></div>
+                <div style="margin-bottom: 50px;"></div>
+
+                <label class="label">
+                    <span class="label-text" style="font-size: 25px; font-weight: bold;">제목</span>
+                    <span class="label-text" style="font-size: 15px; font-weight: bold;">
+                    <span style="color: grey;">(</span>
+                    <span style="color: #00bfff;">*</span>
+                    <span style="color: grey;">10자 이상</span>
+                    <span style="color: grey;">)</span>
+    </span>
+                </label>
+                <div style="margin-bottom: 10px;"></div>
+
+                <input class="input input-bordered" maxlength="100"
+                       name="subject" placeholder="제목" type="text">
+            </div>
+            <div style="margin-bottom: 20px;"></div>
+
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text" style="font-size: 25px; font-weight: bold;">내용</span>
+                    <span class="label-text" style="font-size: 15px; font-weight: bold;">
+                    <span style="color: grey;">(</span>
+                    <span style="color: #00bfff;">*</span>
+                    <span style="color: grey;">200자 이상</span>
+                    <span style="color: grey;">)</span>
+    </span>
+                </label>
+                <div style="margin-bottom: 10px;"></div>
+
+                <textarea class="textarea textarea-bordered h-[calc(100vh-450px)] min-h-[100px]" maxlength="20000"
+                          name="body" placeholder="내용"
+                ></textarea>
+            </div>
+
+            <hr style="width: 100%; margin-top: 10px; margin-bottom: 20px;">
+
+            <span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                    포인트를 설정해주세요.
+                    <span th:text="'(보유 포인트 : ' + ${myPoint} + ')'"></span>
+                </span>
+            <select name="point" id="point" th:with="userPoint=${userPoint}" class="my-2 grey-dropdown">
+                <option th:each="i : ${pointOptions}" th:value="${i}" th:text="${i}"></option>
+            </select>
+
+            <hr style="width: 100%; margin-top: 10px; margin-bottom: 20px;">
+
+            <div class="content-box" style="background-color: #f0f0f0;">
+
+                <p style="color: black; font-weight: bold; font-size: 25px;">상담글 등록 전 필수 안내 사항)</p>
+                <ol style="font-size: 20px;">
+                    <div style="margin-bottom: 40px;"></div>
+                    <li>1. 상담글 제목은 답변을 받기에 적합한 내용으로 일부가 변경될 수 있습니다.</li>
+                    <div style="margin-bottom: 30px;"></div>
+                    <li>2. 상담글에 변호사 답변 등록시 글 삭제가 불가합니다.</li>
+                    <div style="margin-bottom: 30px;"></div>
+                    <li>3. 등록된 글은 네이버 지식인, 포털 사이트, 로톡사이트에 내용이 공개됩니다.</li>
+                    <div style="margin-bottom: 30px;"></div>
+                    <li>4. 아래 사항에 해당할 경우, 서비스 이용이 제한될 수 있습니다.</li>
+                    <div style="margin-bottom: 30px;"></div>
+                </ol>
+
+                <ul style="color: grey; font-size: 15px; padding-left: 20px;">
+                    <li>· 개인정보(개인/법인 실명, 전화번호, 주민번호, 주소, 아이디 등) 및 외부 링크 포함</li>
+                    <li>· 변호사 선임 및 선임 비용과 관련된 질문 포함</li>
+                    <li>· 법률 문제 해결을 목적의 상담글이 아닌 경우</li>
+                    <li>· 동일/유사한 내용의 게시물을 지속적으로 반복 기재</li>
+                    <li>· 의미없는 문자의 나열 포함</li>
+                </ul>
+
+                <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+
+                <div class="form-control">
+                    <label class="label cursor-pointer flex items-center" style="width: fit-content;">
+                        <input type="checkbox" name="termsAgree" id="termsAgree" class="checkbox checkbox-primary"
+                               style="margin-right: 8px;"/>
+                        <span class="label-text text-left text-sm"
+                              style="font-size: 20px;">안내사항을 모두 확인했으며, 동의합니다.</span>
+                    </label>
+
+                    <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+
+                    <div style="text-align: right;">
+                        <button style="background-color: skyblue; color: white; padding: 10px 20px; border-radius: 20px;">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>글 등록하기</span>
+                        </button>
+                    </div>
+
+
+                    <script th:inline="javascript">
+                        $('#firstCategory').change(function() {
+                            var firstCategoryId = $(this).val();
+
+                            $.ajax({
+                                url: "/milyx/secondCategories",
+                                method: 'GET',
+                                data: { firstCategoryId: firstCategoryId },
+                                success: function(data) {
+                                    // console.log('Data:', data);
+
+                                    $("#secondCategory").empty();
+
+                                    $.each(data, function (index, category) {
+                                        const option = $("<option>", { value: category.id, text: category.title });
+                                        $("#secondCategory").append(option);
+                                    });
+                                },
+                                error: function(request,status,error){
+                                    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                                }
+                            });
+                        });
+                    </script>
+                    <script>
+                        let submitCreateFormDone = false;
+
+                        function submitCreateForm(form) {
+                            if (submitCreateFormDone) return;
+
+                            form.firstCategory.value = form.firstCategoryId.value;
+                            form.secondCategory.value = form.secondCategoryId.value;
+                            form.subject.value = form.subject.value.trim();
+
+                            if (form.subject.value.length == 0) {
+                                form.subject.focus();
+                                toastWarning('제목을 입력해주세요.');
+                                return;
+                            }
+
+                            if (form.subject.value.length < 2) {
+                                form.subject.focus();
+                                toastWarning('제목을 2글자 이상 입력해주세요.');
+                                return;
+                            }
+
+                            form.body.value = form.body.value.trim();
+
+                            if (form.body.value.length == 0) {
+                                form.body.focus();
+                                toastWarning('내용을 입력해주세요.');
+                                return;
+                            }
+
+                            if (form.body.value.length < 2) {
+                                form.body.focus();
+                                toastWarning('내용을 2자 이상 입력해주세요.');
+                                return;
+                            }
+
+                            form.submit();
+                            submitCreateFormDone = true;
+                        }
+                    </script>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

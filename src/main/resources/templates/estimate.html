@@ -1,0 +1,354 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>견적 : MILY</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <!-- banner-img -->
+<div class="banner-img border">
+    
+</div>
+    <form class="con mx-auto mt-10 p-5 shadow-lg" th:action="@{/user/estimate}" method="post" style="border: 1px solid #fff; background-color: rgba(218, 234, 250, 0.97);" onsubmit="submitestimateForm(this); return false;">
+
+        <!-- 1차 카테고리 텍스트 -->
+        <div class="pick_fc"></div>
+
+        <!-- 2차 카테고리 텍스트 -->
+        <div class="pick_sc"></div>
+
+        <!-- area 카테고리 텍스트 -->
+        <div class="pick_area"></div>
+
+        <!-- 1차 카테고리 -->
+        <div class="fc_wrap">
+            <div class="text-center text-lg mb-5">
+            <span class="font-medium">1차 카테고리</span>
+        </div>
+            <div class="box-1" id="firstCategory">
+                <div th:each="firstCategory : ${firstCategories}">
+                    <input type="checkbox" class="category-checkbox-1" th:id="'cat-' + ${firstCategory.id}" th:value="${firstCategory.id}" name="firstCategory">
+                    <label class="category-label" th:for="'cat-' + ${firstCategory.id}" th:text="${firstCategory.title}"></label>
+                </div>
+            </div>
+
+            <div class="find_btn_wrap text-center text-lg mt-5">
+            <input class="fc_btn btn btn-disabled " value="선택완료">
+            </div>
+
+        </div>
+
+        <!-- 2차 카테고리 -->
+        <div class="sc_wrap">
+            <div class="text-center text-lg mb-5">
+            <span>2차 카테고리</span>
+        </div>
+            <div class="sc-wrap-2" id="secondCategory"></div>
+
+            <div class="find_btn_wrap flex justify-center items-center text-lg pt-5 mx-3">
+            <input class="sc_wrap_prev_btn btn mr-8" value="&lt 이전">
+            <input class="sc_btn btn btn-disabled" value="선택완료">
+        </div>
+        </div>
+
+        <!-- 지역 선택 -->
+        <div class="area_wrap">
+            <span class="flex justify-center items-center text-lg">지역 선택</span>
+            <div id="areaCategory" style="width: 550px; height: 355px; padding: 10px">
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="서울">서울</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="경기">경기</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="인천">인천</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="세종">세종</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="대전">대전</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="대구">대구</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="울산">울산</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="광주">광주</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="부산">부산</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="제주">제주</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="강원">강원</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="경북">경북</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="경남">경남</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="충북">충북</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="충남">충남</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="전북">전북</input></span>
+                <span><input name="area" class="category-checkbox-3" type="checkbox" value="전남">전남</input></span>
+            </div>
+
+            <div class="find_btn_wrap flex justify-center items-center text-lg pt-5">
+                <input class="area_wrap_prev_btn btn mr-8" value="&lt 이전">
+                <input class="area_btn btn btn-disabled" value="선택완료">
+            </div>
+        </div>
+
+        <!-- 하고싶은 말 -->
+        <div class="body_wrap">
+            <span class="flex justify-center items-center text-lg">하고싶은 말</span>
+            <textarea name="body" id="body" cols="30" rows="10" style="border: 1px solid #c8c8c8; width: 100%;"></textarea>
+        </div>
+
+        <!-- 보내기 버튼 -->
+        <div class="find_btn_wrap btn_wrap flex justify-around items-center text-lg pt-28 mx-3">
+            <input class="btn_wrap_prev_btn btn mr-8" value="&lt 이전">
+            <input type="submit" class="body_btn btn btn-disabled" value="보내기">
+        </div>
+    </form>
+
+    <!-- 스타일 -->
+    <style>
+        .banner-img{
+            width: 1300px;
+            height: 225px;
+            background-image:url(https://d2ai3ajp99ywjy.cloudfront.net/uploads/titleimage/original/5afd4ca181d5b9d73ad060e2-original.jpg);
+            background-position: 50% 50%;
+            background-size: cover;
+            position: relative;
+            text-align: center; 
+        }
+        
+
+        .con{
+            border-radius: 20px;
+            width: 600px;
+            height: 600px;
+        }
+
+        .box-1,
+        .sc-wrap-2{
+            margin: 0 auto;
+            width: 550px;
+            height: 355px;
+        }
+
+        /* 두 드롭다운 메뉴에 공통적으로 적용되는 스타일 */
+        #firstCategory,
+        #secondCategory {
+        background-color: rgba(218, 234, 250, 0.97); /* 배경색 */
+        color: #333; /* 텍스트 색상 */
+        border: none; /* 테두리 */
+        padding: 10px; /* 내부 패딩 */
+        border-radius: 5px; /* 테두리 둥글게 */
+        font-size: 16px; /* 폰트 크기 */
+
+        }
+
+        /* 드롭다운 메뉴 호버 시 스타일링 */
+        #firstCategory:hover,
+        #secondCategory:hover {
+        background-color: rgba(218, 234, 250, 0.97);
+        cursor: pointer; 
+        }
+
+        #secondCategory{
+            /* display: flex;
+            flex-direction: column; */
+        }
+
+        #areaCategory {
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-checkbox-3 {
+            /* outline: 1px solid red; */
+        }
+
+        /* 버튼스타일 */
+        .find_btn_wrap .btn {
+          background-color: #fff;
+          border: 2px solid #309cff;
+          border-radius: 10px;
+          color: #309cff;
+          padding: 10px 20px;
+        }
+
+        .find_btn_wrap .btn:hover {
+          border: 2px solid #87bbfa;
+          color: #87bbfa;
+        }
+
+        /* 보내기버튼 */
+        .body_btn{
+            width: 230px;
+            height: 47px;
+        }
+
+    </style>
+
+
+    <script>
+        let submitestimateFormDone = false;
+        function submitestimateForm(form) {
+            if ( submitestimateFormDone ) return;
+
+            form.body.value = form.body.value.trim();
+
+            if ( form.body.value.length == 0 ) {
+                form.body.focus();
+                toastWarning('글을 작성해주세요.');
+                return;
+            }
+
+            form.submit();
+            submitestimateFormDone = true;
+        }
+
+        // 시작할 때 모두 숨김
+        $('document').ready(function() {
+            $('.sc_wrap').css('display', 'none');
+            $('.area_wrap').css('display', 'none');
+            $('.body_wrap').css('display', 'none');
+            $('.btn_wrap').css('display', 'none');
+
+            $('#body').on('keyup', function() {
+                if ($(this).val()) {
+                    $('.body_btn').removeClass('btn-disabled');
+                }
+                else {
+                    $('.body_btn').addClass('btn-disabled');
+                }
+            });
+        });
+
+        // 1차에서 선택완료 버튼 클릭하면 2차로
+        $('.fc_btn').click(function() {
+            $('.sc_wrap').css('display', 'block');
+            $('.fc_wrap').css('display', 'none');
+        });
+
+        // 2차 이전 버튼 클릭하면 1차로
+        $('.sc_wrap_prev_btn').click(function() {
+            $('.fc_wrap').css('display', 'block');
+            $('.sc_wrap').css('display', 'none');
+        });
+
+        // area에서 이전 버튼 클릭하면 2차로
+        $('.area_wrap_prev_btn').click(function() {
+            $('.sc_wrap').css('display', 'block');
+            $('.area_wrap').css('display', 'none');
+        });
+
+        // area에서 선택완료 버튼 클릭하면 body로
+        $('.area_btn').click(function() {
+            $('.area_wrap').css('display', 'none');
+
+            $('.body_wrap').css('display', 'block');
+            $('.btn_wrap').css('display', 'flex');
+        });
+
+        // body에서 이전 버튼 클릭하면 area로
+        $('.btn_wrap_prev_btn').click(function() {
+            $('.body_wrap').css('display', 'none');
+            $('.btn_wrap').css('display', 'none');
+
+            $('.area_wrap').css('display', 'block');
+        });
+
+        // area에서 체크 시 선택완료 버튼 활성화
+        $('.category-checkbox-3').change(function() {
+            // 다른 체크박스 선택 해제
+            $('.category-checkbox-3').not(this).prop('checked', false);
+
+            var selectedValue = $(this).val()
+
+            if (this.checked) {
+                $('.pick_area').text(selectedValue);
+
+                $('.area_btn').removeClass('btn-disabled');
+            }
+            else {
+                $('.pick_area').empty();
+
+                $('.area_btn').addClass('btn-disabled');
+            }
+        });
+
+        $('.category-checkbox-1').change(function() {
+            var pickFcDiv = $(".pick_fc");
+
+            if(this.checked) {
+                var firstCategoryId = $(this).val();
+
+                // 선택값 나오게
+                var checkboxId = $(this).attr('id');
+                var labelTitle = $('label[for="' + checkboxId + '"]').text();https://chat.openai.com/c/be423c0f-0873-44f6-875e-04a5e41e2bef
+                var pickFcDiv = $(".pick_fc");
+                pickFcDiv.empty();
+                pickFcDiv.append(labelTitle);
+
+
+                // 다른 체크박스 선택 해제
+                $('.category-checkbox-1').not(this).prop('checked', false);
+
+                // 선택완료 시 버튼 활성화
+                $('.fc_btn').removeClass('btn-disabled');
+
+                $.ajax({
+                    url: "/milyx/secondCategories",
+                    method: 'GET',
+                    data: { firstCategoryId: firstCategoryId },
+                    success: function(data) {
+                        var secondCategoryDiv = $("#secondCategory");
+                        secondCategoryDiv.empty();
+                        $.each(data, function (index, category) {
+                            var div = $('<div>', {})
+                            var checkbox = $('<input>', {
+                                type: 'checkbox',
+                                class: 'category-checkbox-2',
+                                id: 'cat2-' + category.id,
+                                value: category.id,
+                                name: 'secondCategory',
+                                click: function() {
+                                    var checkboxId = $(this).attr('id');
+                                    var labelTitle = $('span[for="' + checkboxId + '"]').text();
+                                    var pickFcDiv = $(".pick_sc");
+                                    pickFcDiv.empty();
+                                    pickFcDiv.append(labelTitle);
+
+                                    // 다른 체크박스 선택 해제
+                                    $('.category-checkbox-2').not(this).prop('checked', false);
+
+                                    if (this.checked) {
+                                        $('.sc_btn').removeClass('btn-disabled');
+                                    } else {
+                                        $('.sc_btn').addClass('btn-disabled');
+                                    }
+                                }
+                            });
+                            var label = $('<span>', {
+                                class: 'category-label',
+                                for: 'cat2-' + category.id,
+                                text: category.title
+                            });
+
+                            secondCategoryDiv.append(div.append(checkbox).append(label));
+
+                            $('.sc_btn').click(function() {
+                                $('.area_wrap').css('display', 'block');
+                                $('.sc_wrap').css('display', 'none');
+                            });
+
+
+                        });
+                    },
+                    error: function(request,status,error){
+                        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                    }
+                });
+            } else {
+                // 체크박스 선택 해제 시 2차 카테고리 초기화
+                $("#secondCategory").empty();
+                pickFcDiv.empty();
+
+                // 선택취소 시
+                $('.fc_btn').addClass('btn-disabled');
+            }
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

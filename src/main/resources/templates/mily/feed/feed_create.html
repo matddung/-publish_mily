@@ -1,0 +1,162 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>피드 : MILY</title>
+</head>
+<body>
+<div class="flex-1 flex items-center justify-center" layout:fragment="content">
+    <div class="container w-full px-4" style="width: 1280px;">
+        <div style="display: flex; flex-direction: column; align-items: center;" class="mt-40 justify-center">
+            <div style="font-size: 30px; font-weight: bold; justify-center width: 1280px; ">
+                <span>변호사님의 의견 작성</span>
+            </div>
+            <div style="margin-top: 20px;"></div>
+
+            <form class="flex flex-col gap-6" method="POST" onsubmit="submitCreateForm(this); return false;"
+                  th:action="@{/feed/create}">
+                <div class="form-control">
+                    <span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                        대분류를 선택해주세요.</span>
+
+                <select name="firstCategory" id="firstCategory" class="my-5">
+                    <option value="0" disabled selected>전체</option>
+                    <option th:each="category : ${firstCategories}" th:text="${category.title}"
+                            th:value="${category.id}"></option>
+                </select>
+                <hr style="width: 100%; margin-top: 20px; margin-bottom: 20px;">
+                <span>
+                    <i class="fa-solid fa-arrow-down"></i>
+                    소분류를 선택해주세요.
+                </span>
+                <select name="secondCategory" id="secondCategory" class="my-5">
+                    <option value="0" disabled selected>대분류를 먼저 선택해주세요.</option>
+                </select>
+
+
+                <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"></div>
+                <div style="margin-bottom: 50px;"></div>
+
+                <label class="label">
+                    <span class="label-text" style="font-size: 25px; font-weight: bold;">제목</span>
+                    <span class="label-text" style="font-size: 15px; font-weight: bold;">
+                    <span style="color: grey;">(</span>
+                    <span style="color: #00bfff;">*</span>
+                    <span style="color: grey;">10자 이상</span>
+                    <span style="color: grey;">)</span>
+    </span>
+                </label>
+                <div style="margin-bottom: 10px;"></div>
+
+                <input class="input input-bordered" maxlength="100"
+                       name="subject" placeholder="제목" type="text">
+
+                <div style="margin-bottom: 20px;"></div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text" style="font-size: 25px; font-weight: bold;">내용</span>
+                        <span class="label-text" style="font-size: 15px; font-weight: bold;">
+                    <span style="color: grey;">(</span>
+                    <span style="color: #00bfff;">*</span>
+                    <span style="color: grey;">200자 이상</span>
+                    <span style="color: grey;">)</span>
+    </span>
+                    </label>
+                    <div style="margin-bottom: 10px;"></div>
+
+                    <textarea class="textarea textarea-bordered h-[calc(100vh-450px)] min-h-[100px]" maxlength="20000"
+                              name="body" placeholder="내용"
+                    ></textarea>
+                </div>
+                <!--<label class="label">
+                    <span class="label-text">변호사님의 판결 및 사건에 대한 의견을 자유롭게 적어주세요!</span>
+                </label>
+                <input class="input input-bordered" maxlength="100"
+                       name="subject" placeholder="제목" type="text">
+            </div>
+
+
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">내용</span>
+                </label>
+                <textarea class="textarea textarea-bordered h-[calc(100vh-450px)] min-h-[100px]" maxlength="20000"
+                          name="body" placeholder="내용"
+                ></textarea>
+            </div>-->
+                    <div style="margin-bottom: 30px;"></div>
+
+                <div style="text-align: right;">
+                    <button style="background-color: skyblue; color: white; padding: 10px 20px; border-radius: 20px;">
+                        <i class="fa-solid fa-pen"></i>
+                        <span>글 등록하기</span>
+                    </button>
+                </div>
+                <script th:inline="javascript">
+                    $('#firstCategory').change(function() {
+                        var firstCategoryId = $(this).val();
+
+                        $.ajax({
+                            url: "/milyx/secondCategories",
+                            method: 'GET',
+                            data: { firstCategoryId: firstCategoryId },
+                            success: function(data) {
+                                // console.log('Data:', data);
+
+                                $("#secondCategory").empty();
+
+                                $.each(data, function (index, category) {
+                                    const option = $("<option>", { value: category.id, text: category.title });
+                                    $("#secondCategory").append(option);
+                                });
+                            },
+                            error: function(request,status,error){
+                                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                            }
+                        });
+                    });
+                </script>
+                <script>
+                    let submitCreateFormDone = false;
+
+                    function submitCreateForm(form) {
+                        if (submitCreateFormDone) return;
+
+                        form.firstCategory.value = form.firstCategoryId.value;
+                        form.secondCategory.value = form.secondCategoryId.value;
+                        form.subject.value = form.subject.value.trim();
+
+                        if (form.subject.value.length == 0) {
+                            form.subject.focus();
+                            toastWarning('제목을 입력해주세요.');
+                            return;
+                        }
+
+                        if (form.subject.value.length < 2) {
+                            form.subject.focus();
+                            toastWarning('제목을 2글자 이상 입력해주세요.');
+                            return;
+                        }
+
+                        form.body.value = form.body.value.trim();
+
+                        if (form.body.value.length == 0) {
+                            form.body.focus();
+                            toastWarning('내용을 입력해주세요.');
+                            return;
+                        }
+
+                        if (form.body.value.length < 2) {
+                            form.body.focus();
+                            toastWarning('내용을 2자 이상 입력해주세요.');
+                            return;
+                        }
+
+                        form.submit();
+                        submitCreateFormDone = true;
+                    }
+                </script>
+        </div>
+</body>
+</html>

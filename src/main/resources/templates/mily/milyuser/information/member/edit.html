@@ -1,0 +1,224 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원정보 수정 : MILY</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function checkPassword() {
+            $.ajax({
+                url: '/user/checkpassword',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify ({
+                    password: $('#password').val()
+                }),
+                success: function(response) {
+                    if (response === true) {
+                        window.location.href = '/user/mypage/edit/other';
+                    } else {
+                        // 비밀번호가 일치하지 않으면 경고 메시지 표시
+                        alert('비밀번호가 일치하지 않습니다.');
+                    }
+                }
+            });
+        }
+    </script>
+    <script>
+        var checkUserEmailDupDebounce, checkUserPhoneNumberDupDebounce;
+
+        $(document).ready(function() {
+            function checkUserEmailDup(form) {
+                form.userEmail.value = form.userEmail.value.trim();
+
+                if ( form.userEmail.value.length == 0 ) {
+                    clearUserEmailInputMsg();
+                    return;
+                }
+                if ( form.userEmail.value.length < 3 ) {
+                    clearUserEmailInputMsg();
+                    return;
+                }
+
+                if ( validUserEmail == form.userEmail.value ) return;
+                if ( lastCheckedUserEmail == form.userEmail.value ) return;
+
+                lastCheckedUserEmail = form.userEmail.value;
+                clearUserEmailInputMsg();
+
+                fetch(
+                    'checkUserEmailDup?userEmail=' + form.userEmail.value
+                )
+                    .then(res => res.json())
+                    .then((rsData) => {
+                        if ( rsData.success ) {
+                            validUserEmail = form.userEmail.value;
+                        }
+                        setUserEmailInputMsg(rsData.success, rsData.msg);
+                    });
+            }
+
+            function checkUserPhoneNumberDup(form) {
+                form.userPhoneNumber.value = form.userPhoneNumber.value.trim();
+
+                if ( form.userPhoneNumber.value.length == 0 ) {
+                    clearUserPhoneNumberInputMsg();
+                    return;
+                }
+                if ( form.userPhoneNumber.value.length < 11 ) {
+                    clearUserPhoneNumberInputMsg();
+                    return;
+                }
+
+                if ( validUserPhoneNumber == form.userPhoneNumber.value ) return;
+                if ( lastCheckedUserPhoneNumber == form.userPhoneNumber.value ) return;
+
+                lastCheckedUserPhoneNumber = form.userPhoneNumber.value;
+                clearUserPhoneNumberInputMsg();
+
+                fetch(
+                    'checkUserPhoneNumberDup?userPhoneNumber=' + form.userPhoneNumber.value
+                )
+                    .then(res => res.json())
+                    .then((rsData) => {
+                        if ( rsData.success ) {
+                            validUserPhoneNumber = form.userPhoneNumber.value;
+                        }
+                        setUserPhoneNumberInputMsg(rsData.success, rsData.msg);
+                    });
+            }
+
+            const editForm = document['edit-form'];
+            checkUserEmailDupDebounce = _.debounce(() => checkUserEmailDup(editForm), 500);
+            checkUserPhoneNumberDupDebounce = _.debounce(() => checkUserPhoneNumberDup(editForm), 500);
+
+            function clearUserEmailInputMsg() {
+                $(editForm.userEmail).removeClass('input-accent input-error');
+                $(editForm.userEmail).next().removeClass('text-green-400 text-red-400');
+                $(editForm.userEmail).next().empty();
+            }
+            function setUserEmailInputMsg(isSuccess, msg) {
+                if ( isSuccess ) $(editForm.userEmail).addClass('input-accent');
+                if ( !isSuccess ) $(editForm.userEmail).addClass('input-error');
+                $(editForm.userEmail).next().addClass(isSuccess ? 'text-green-400' : 'text-red-400');
+                $(editForm.userEmail).next().text(msg);
+            }
+            function clearUserPhoneNumberInputMsg() {
+                $(editForm.userPhoneNumber).removeClass('input-accent input-error');
+                $(editForm.userPhoneNumber).next().removeClass('text-green-400 text-red-400');
+                $(editForm.userPhoneNumber).next().empty();
+            }
+            function setUserPhoneNumberInputMsg(isSuccess, msg) {
+                if ( isSuccess ) $(editForm.userPhoneNumber).addClass('input-accent');
+                if ( !isSuccess ) $(editForm.userPhoneNumber).addClass('input-error');
+                $(editForm.userPhoneNumber).next().addClass(isSuccess ? 'text-green-400' : 'text-red-400');
+                $(editForm.userPhoneNumber).next().text(msg);
+            }
+
+            let validUserEmail = '';
+            let lastCheckedUserEmail = '';
+            let validUserPhoneNumber = '';
+            let lastCheckedUserPhoneNumber = '';
+
+            let submitEditFormDone = false;
+            function submitEditForm(form) {
+                if ( submitEditFormDone ) return;
+
+                form.userEmail.value = form.userEmail.value.trim();
+
+                if ( form.userEmail.value.length == 0 ) {
+                    form.userEmail.focus();
+                    toastWarning('이메일 입력 란을 확인해주세요.');
+                    return;
+                }
+
+                form.userPhoneNumber.value = form.userPhoneNumber.value.trim();
+
+                if ( form.userPhoneNumber.value.length == 0 ) {
+                    form.userPhoneNumber.focus();
+                    toastWarning('전화번호 입력 란을 확인해주세요.');
+                    return;
+                }
+
+                if ( validUserEmail != form.userEmail.value ) {
+                    $(form.userEmail).next().focus();
+                    toastWarning('이메일 중복 체크를 해주세요.');
+                    return;
+                }
+
+                if ( validUserPhoneNumber != form.userPhoneNumber.value ) {
+                    $(form.userPhoneNumber).next().focus();
+                    toastWarning('전화번호 중복 체크를 해주세요.');
+                    return;
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content">
+    <!--  메뉴바  -->
+    <div id="header_menu" class="text-lg w-full fixed top-20 left-0 bg-white z-50 h-12 border-b pt-4">
+        <div class="flex max-w-7xl m-auto justify-evenly">
+            <a th:href="@{/user/mypage/info}" class="hover:text-blue-400 text-gray-300">내 정보</a>
+            <a th:href="@{/user/mypage/edit}" class="ml-5"
+               style="color: rgb(43, 45, 47); border-bottom: 2px solid black; padding-bottom: 3px;">계정 설정</a>
+        </div>
+    </div>
+
+    <div class="main-form">
+        <form id="password-check-form" onsubmit="event.preventDefault(); checkPassword();">
+            <div class="large-text">
+                <span>회원정보 수정</span>
+            </div>
+            <span>회원정보 수정을 위해 현재 비밀번호를 입력해주세요.</span>
+            <div class="regular-text">
+                <input type="password" id="password" name="password" class="password-input" placeholder="현재 비밀번호">
+                <input type="submit" class="password-submit" value="확인">
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .main-form {
+            display: flex;
+            margin: 48px 0;
+            width: 640px;
+            justify-content: center;
+        }
+        .large-text {
+            display: flex;
+            font-size: 32px;
+            font-weight: 600;
+            margin: 96px 0;
+            justify-content: center;
+        }
+        .regular-text {
+            display: flex;
+            margin: 24px 0;
+            font-size: 18px;
+            font-weight: 400;
+            justify-content: center;
+        }
+        .password-input {
+            font-size: 16px;
+            border-top: 1px solid black;
+            border-left: 1px solid black;
+            border-bottom: 1px solid black;
+            border-radius: 7.5px 0 0 7.5px;
+            padding: 5px 15px;
+        }
+        .password-submit {
+            font-size: 16px;
+            border: 1px solid black;
+            border-radius: 0 7.5px 7.5px 0;
+            padding: 5px 15px;
+        }
+
+        .password-submit:hover {
+            color: #60a5fa;
+        }
+    </style>
+</div>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<html layout:decorate="@{mily/common/layout}" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>변호사 피드 : Mily</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<div layout:fragment="content">
+    <!--  메뉴바  -->
+    <div id="header_menu" class="text-lg w-full fixed top-20 left-0 bg-white z-50 h-12 border-b pt-4">
+        <div class="max-w-7xl m-auto">
+            <a href="/" class="hover:text-blue-400 text-gray-300">홈</a>
+            <a href="/user/lawyers" class="ml-5 hover:text-blue-400 text-gray-300">변호사</a>
+            <a href="/milyx" class="ml-5 hover:text-blue-400 text-gray-300"
+               style="color: rgb(43, 45, 47); border-bottom: 2px solid black; padding-bottom: 7px;">상담사례</a>
+        </div>
+    </div>
+
+    <div class="content_item">
+        <!--  배너  -->
+        <div class="m_banner_wrap relative -mt-3">
+            <div class="mx-auto flex justify-end items-end">
+                <div class="mx-auto">
+                    <!-- 이미지 -->
+                    <div class="banner-img-box">
+                        <img src="https://d2nyk3ltml4doc.cloudfront.net/lawtalk/latest/images/0cb1e48e97121240a8a5.png"
+                             class="object-cover; vertical-align: bottom;" alt="main-img-1">
+                        <div class="text-grid">
+                            <p class="text">MILY 변호사님들의 사건사례와 판결문의 대한 의견을 써보세요!</p>
+                            <a class="text" th:if="${@rq.login and @rq.getMilyUser.role == 'approve'}"
+                               th:href="@{feed/create}"
+                               style="text-decoration: underline;">작성하기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상담글 4개 -->
+        <div class="question-grid-box mt-12">
+
+            <div class="question-grid-box mt-4">
+                <div class="question-box flex mb-3 border-b pb-3" th:each="feed : ${feed}">
+                    <div class="question-list mt-3">
+                        <div class="question-titleLine mt-3">
+                            <p class="title mt-3" style="color: rgb(122, 130, 135);"
+                               th:text="${feed.firstCategory.title}"></p>
+                            <a th:href="@{/feed/detail/{id}(id=${feed.id})}">
+                                <p class="list mt-3" style="color: rgb(43, 45, 47); font-size: 20px; font-weight: 600;"
+                                   th:text="${feed.secondCategory.title}"></p>
+                            </a>
+                        </div>
+
+                        <!-- 조회수 -->
+                        <div ng-if="stateName != 'main'" class="case-card__info flex justify-between">
+                      <span class="viewCount" style="--tw-text-opacity: 1;
+          color: rgba(107, 114, 128, var(--tw-text-opacity));">조회수<i class="number" th:text="' ' + ${feed.view}"></i>
+                      </span>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    /* 배너 텍스트 */
+                    .text-grid {
+                      padding-top: 128px;
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      text-align: center;
+                      color: #fff;
+                      background-color: rgba(0, 0, 0, 0.2);
+                    }
+
+                    .text {
+                      color: #fff;
+                      font-weight: 500;
+                      font-size : 32px;
+                    }
+
+                    @media (max-width: 360px) {
+                      .content_item {
+                        max-width: var(--m_width);
+                      }
+
+                      .banner-img-box {
+                        height: 100px;
+                      }
+
+                      .banner-img-box > img {
+                          height: 100%;
+                          object-fit: cover;
+                      }
+
+                      .text-grid > p {
+                        margin: 33px 0 0 0;
+                        font-size: 16px;
+                      }
+
+                      .text-grid span {
+                        display: block;
+                        margin-top: -13px;
+                      }
+
+                      .case-card__answer > span {
+                        max-width: var(--m_width) !important;
+                        display: block;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      }
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script th:inline="javascript">
+    const elapsedTime = (date) => {
+    	const start = new Date(date);
+    	const end = new Date();
+
+    	const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);
+    	if (seconds < 60) return '방금 전 답변';
+
+    	const minutes = seconds / 60;
+    	if (minutes < 60) return `${Math.floor(minutes)}분 전 답변`;
+
+    	const hours = minutes / 60;
+    	if (hours < 24) return `${Math.floor(hours)}시간 전 답변`;
+
+    	const days = hours / 24;
+    	if (days < 7) return `${Math.floor(days)}일 전 답변`;
+
+    	return `${start.toLocaleDateString()}`;
+    };
+
+    window.onload = function() {
+        document.querySelectorAll("[id^='createDate_']").forEach(function(element) {
+            const createDateInMillis = Date.parse(element.textContent);
+            element.textContent = elapsedTime(createDateInMillis);
+        });
+    };
+</script>
+<!--<html layout:decorate="@{mily/common/layout}" lang="ko">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>피드 : MILY</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div layout:fragment="content" class="items-center justify-center" style="display: flex-row;">-->
+<!--    <div class="mt-9 mb-9 items-center justify-center" style="display: flex; font-size: 42px;">-->
+<!--        변호사 피드-->
+<!--    </div>-->
+<!--    <div class="mt-6 mb-9 items-center justify-center" style="display: flex;">-->
+<!--        <button>-->
+<!--            <a th:if="${user != null && user.role == 'approve'}" th:href="@{feed/create}" class="btn btn-primary">글 작성</a>-->
+<!--        </button>-->
+<!--    </div>-->
+<!--    <div class="ml-60 mr-60 items-center justify-center">-->
+<!--        <ul class="mt-3 border-l-2 border-r-2 border-[#c8c8c8]/25" style="display: block;">-->
+<!--            <li th:each="feed : ${feed}">-->
+<!--                <div class="mt-6 mb-6 card bg-base-100">-->
+<!--                    <div class="card-body">-->
+<!--                        <div class="form-control col-span-full" style="display: block;">-->
+<!--                            <a th:href="@{/feed/detail/{id}(id=${feed.id})}" th:text="${feed.subject}"-->
+<!--                               style="font-weight:bold;"></a>-->
+<!--                        </div>-->
+
+<!--                        <div class="detail grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-3">-->
+<!--                            <div class="form-control" style="display: -webkit-inline-box;">-->
+<!--                                <div th:id="'createDate_' + ${feed.id}" th:text="${feed.createDate}" style="display: inline-block;"></div>-->
+
+<!--                                <i class="fa-regular fa-eye" style="font-size: 16px;"></i>-->
+<!--                                <div th:text="'ㅤ' + ${feed.view}"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--</body>-->
+<!--</html>-->
+
+<!--<script th:inline="javascript">-->
+<!--    const elapsedTime = (date) => {-->
+<!--    	const start = new Date(date);-->
+<!--    	const end = new Date();-->
+
+<!--    	const seconds = Math.floor((end.getTime() - start.getTime()) / 1000);-->
+<!--    	if (seconds < 60) return '방금 전';-->
+
+<!--    	const minutes = seconds / 60;-->
+<!--    	if (minutes < 60) return `${Math.floor(minutes)}분 전`;-->
+
+<!--    	const hours = minutes / 60;-->
+<!--    	if (hours < 24) return `${Math.floor(hours)}시간 전`;-->
+
+<!--    	const days = hours / 24;-->
+<!--    	if (days < 7) return `${Math.floor(days)}일 전`;-->
+
+<!--    	return `${start.toLocaleDateString()}`;-->
+<!--    };-->
+
+<!--    window.onload = function() {-->
+<!--        document.querySelectorAll("[id^='createDate_']").forEach(function(element) {-->
+<!--            const createDateInMillis = Date.parse(element.textContent);-->
+<!--            element.textContent = elapsedTime(createDateInMillis);-->
+<!--        });-->
+<!--    };-->
+<!--</script>-->
