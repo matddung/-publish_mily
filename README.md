@@ -1,5 +1,8 @@
 MILY
 ====
+origin repository adress : https://github.com/final-project-gang/mily
+----------------
+
 프로젝트 개발 동기
 -----------------
 법에 대해 잘 모를 때, 법이 필요한 경우에 사용할 수 있는 페이지를 만들어보았습니다.
