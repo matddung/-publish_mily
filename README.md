@@ -3,6 +3,7 @@ MILY
 ![mily main](https://github.com/user-attachments/assets/ae540be2-7d2a-4308-a1c3-54e0daad51ca)
 ---------------
 origin repository adress : https://github.com/final-project-gang/mily
+Demonstration video adress : https://www.youtube.com/watch?v=G7RHVrFfPSo&t=376s
 ----------------
 
 프로젝트 개발 동기
